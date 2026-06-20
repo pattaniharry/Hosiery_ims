@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model brands {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique @db.VarChar(100)
+  created_at DateTime?  @default(now()) @db.Timestamp(6)
+  products   products[]
+}
+
+model categories {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique @db.VarChar(100)
+  created_at DateTime?  @default(now()) @db.Timestamp(6)
+  products   products[]
+}
+
+model colours {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique @db.VarChar(100)
+  created_at DateTime?  @default(now()) @db.Timestamp(6)
+  products   products[]
+}
+
+model csv_import_logs {
+  id                 Int       @id @default(autoincrement())
+  file_name          String?   @db.VarChar(255)
+  imported_by        String?   @db.Uuid
+  total_records      Int?
+  successful_records Int?
+  failed_records     Int?
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  users              users?    @relation(fields: [imported_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model inventory {
+  id         Int       @id @default(autoincrement())
+  product_id Int?      @unique
+  quantity   Int       @default(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  products   products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model inventory_transactions {
+  id           Int       @id @default(autoincrement())
+  product_id   Int?
+  txn_type     String?   @db.VarChar(20)
+  quantity     Int
+  remarks      String?
+  performed_by String?   @db.Uuid
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  users        users?    @relation(fields: [performed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products     products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model products {
+  id                     Int                      @id @default(autoincrement())
+  sku                    String                   @unique @db.VarChar(100)
+  product_name           String                   @db.VarChar(255)
+  brand_id               Int?
+  category_id            Int?
+  supplier_id            Int?
+  purchase_price         Decimal?                 @db.Decimal(10, 2)
+  selling_price          Decimal?                 @db.Decimal(10, 2)
+  product_description    String?
+  min_stock              Int?                     @default(0)
+  created_at             DateTime?                @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
+  size_id                Int?
+  color_id               Int?
+  inventory              inventory?
+  inventory_transactions inventory_transactions[]
+  colours                colours?                 @relation(fields: [color_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_color")
+  sizes                  sizes?                   @relation(fields: [size_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_size")
+  brands                 brands?                  @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categories             categories?              @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suppliers              suppliers?               @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stock_adjustments      stock_adjustments[]
+}
+
+model roles {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique @db.VarChar(50)
+  users users[]
+}
+
+model sizes {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique @db.VarChar(100)
+  created_at DateTime?  @default(now()) @db.Timestamp(6)
+  products   products[]
+}
+
+model stock_adjustments {
+  id           Int       @id @default(autoincrement())
+  product_id   Int?
+  old_quantity Int?
+  new_quantity Int?
+  reason       String?
+  adjusted_by  String?   @db.Uuid
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  users        users?    @relation(fields: [adjusted_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products     products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model suppliers {
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar(255)
+  phone    String?    @db.VarChar(30)
+  address  String?
+  products products[]
+}
+
+model test_connection {
+  id      Int     @id @default(autoincrement())
+  message String?
+}
+
+model users {
+  id                     String                   @id @db.Uuid
+  full_name              String                   @db.VarChar(255)
+  email                  String                   @unique @db.VarChar(255)
+  password_hash          String?
+  role_id                Int?
+  is_active              Boolean?                 @default(true)
+  created_at             DateTime?                @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
+  csv_import_logs        csv_import_logs[]
+  inventory_transactions inventory_transactions[]
+  stock_adjustments      stock_adjustments[]
+  roles                  roles?                   @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
