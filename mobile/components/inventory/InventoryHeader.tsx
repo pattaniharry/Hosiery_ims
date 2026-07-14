@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "700",
     color: "#111827",
+    paddingTop: 15,
   },
   subtitle: {
     marginTop: 4,

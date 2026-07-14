@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
   },
   leftSection: {
     flexDirection: "row",
+    marginRight: 8,
     alignItems: "center",
     flex: 1,
     minWidth: 0,
@@ -80,12 +81,15 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
   actionWrapper: {
-    alignSelf: "flex-start",
+    justifyContent: "center",
+  marginLeft: 12,
+  flexShrink: 0,
   },
   exportButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    minWidth: 90,
     borderWidth: 1,
     borderColor: "#BFDBFE",
     borderRadius: 999,

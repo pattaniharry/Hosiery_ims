@@ -20,11 +20,26 @@ interface InventoryRowProps {
 export default function InventoryRow({ item }: InventoryRowProps) {
   return (
     <View style={styles.row}>
-      <Text style={styles.cell}>{item.sku}</Text>
-      <Text style={styles.cell}>{item.product}</Text>
-      <Text style={styles.cell}>{item.product}</Text>
-      <Text style={styles.cell}>{item.color ?? "-"}</Text>
-      <Text style={styles.cell}>{item.size ?? "-"}</Text>
+      <Text
+  style={styles.cell}
+  numberOfLines={1}
+  ellipsizeMode="tail"
+>
+  {item.sku}
+</Text>
+      <Text
+  style={styles.cell}
+  numberOfLines={1}
+  ellipsizeMode="tail"
+>
+  {item.product}
+</Text>
+      <Text style={styles.cell} numberOfLines={1} ellipsizeMode="tail">
+        {item.color ?? "-"}
+      </Text>
+      <Text style={styles.cell} numberOfLines={1} ellipsizeMode="tail">
+        {item.size ?? "-"}
+      </Text>
       <Text style={styles.cell}>{formatCurrency(item.purchasePrice)}</Text>
       <Text style={styles.cell}>{formatCurrency(item.sellingPrice)}</Text>
       <StockBadge stock={item.stock} />
@@ -50,10 +65,9 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   cell: {
-    flex: 1,
-    minWidth: 110,
-    fontSize: 13,
-    color: "#374151",
-    paddingRight: 8,
+  width: 140,
+  fontSize: 13,
+  color: "#374151",
+  paddingRight: 8,
   },
 });

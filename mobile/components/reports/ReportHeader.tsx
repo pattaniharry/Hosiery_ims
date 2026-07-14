@@ -13,8 +13,16 @@ export default function ReportHeader() {
       </Pressable>
 
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Reports</Text>
-        <Text style={styles.subtitle}>Inventory and stock insights</Text>
+        <Text
+    style={styles.title}
+    numberOfLines={1}
+    ellipsizeMode="tail"
+>Reports</Text>
+        <Text
+    style={styles.subtitle}
+    numberOfLines={1}
+    ellipsizeMode="tail"
+>Inventory and stock insights</Text>
       </View>
     </View>
   );
@@ -29,6 +37,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     marginLeft: 14,
+    minWidth: 0,
   },
   title: {
     fontSize: 30,
