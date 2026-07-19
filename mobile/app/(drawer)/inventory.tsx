@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Pressable, SafeAreaView, StyleSheet, Text, View, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import { documentDirectory, writeAsStringAsync, EncodingType } from "expo-file-system/legacy";
+import { isAvailableAsync, shareAsync } from "expo-sharing";
+import * as XLSX from "xlsx";
 
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import { API_BASE_URL } from "@/constants/api";
@@ -41,6 +44,7 @@ export default function Inventory() {
   const [allItems, setAllItems] = useState<InventoryApiResponse["data"]["items"]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   const fetchInventory = useCallback(async () => {
     try {
@@ -146,6 +150,64 @@ export default function Inventory() {
     setPage(1);
   }
 
+  const handleExport = async () => {
+    if (filteredItems.length === 0) {
+      Alert.alert("No Data", "There is no data available to export.");
+      return;
+    }
+
+    try {
+      setExporting(true);
+
+      const exportData = filteredItems.map((item) => ({
+        "SKU": item.sku,
+        "Product Name": item.product,
+        "Color": item.color || "-",
+        "Size": item.size || "-",
+        "Purchase Price": item.purchasePrice || 0,
+        "Selling Price": item.sellingPrice || 0,
+        "Stock Qty": item.stock,
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Filtered Inventory");
+
+      const wbout = XLSX.write(wb, { type: "base64", bookType: "xlsx" });
+
+      const dateString = new Date().toISOString().slice(0, 10);
+      const filename = `inventory_${selectedCategory}_${dateString}.xlsx`;
+      const fileUri = `${documentDirectory}${filename}`;
+
+      await writeAsStringAsync(fileUri, wbout, {
+        encoding: EncodingType.Base64,
+      });
+
+      const sharingAvailable = await isAvailableAsync();
+      
+      if (sharingAvailable) {
+        setTimeout(async () => {
+          try {
+            await shareAsync(fileUri, {
+              mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              dialogTitle: "Export Inventory Sheet Data",
+              UTI: "com.microsoft.excel.xlsx",
+            });
+          } catch (shareError: any) {
+            console.log("Sharing window closed or dismissed by user:", shareError?.message);
+          }
+        }, 150);
+      } else {
+        Alert.alert("Success", `File saved successfully to device: ${filename}`);
+      }
+    } catch (error) {
+      console.error("Export Error:", error);
+      Alert.alert("Export Failed", "An error occurred while generating Excel sheet.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   function handleAdjustItem(item: InventoryApiResponse["data"]["items"][number]) {
     router.push({
       pathname: "/(drawer)/stock-adjustment" as never,
@@ -162,7 +224,11 @@ export default function Inventory() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <InventoryHeader totalItems={pagination.totalItems} totalCount={pagination.totalItems} onExport={() => {}} />
+      <InventoryHeader 
+        totalItems={pagination.totalItems} 
+        totalCount={allItems.length} 
+        onExport={handleExport}
+      />
       <InventoryToolbar
         searchValue={searchValue}
         onSearchChange={handleSearchChange}
@@ -171,7 +237,7 @@ export default function Inventory() {
         onCategoryChange={handleCategoryChange}
       />
 
-      <InventoryTable items={visibleItems} loading={loading} onAdjust={handleAdjustItem} />
+      <InventoryTable items={visibleItems} loading={loading || exporting} onAdjust={handleAdjustItem} />
 
       <View style={styles.paginationRow}>
         <Pressable
