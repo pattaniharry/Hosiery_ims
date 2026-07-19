@@ -97,7 +97,6 @@ export default function Inventory() {
     ];
   }, [allItems]);
 
-  // This handles your multi-page filtered list (50 records across 3 pages, or 5 records if heavily searched)
   const filteredItems = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
