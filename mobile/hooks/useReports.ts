@@ -104,18 +104,22 @@ export function useReports() {
             {
                 title: "Current Inventory",
                 value: summary?.currentInventory ?? 0,
+                type: "current-inventory",
             },
             {
                 title: "Low Stock",
                 value: summary?.lowStock ?? 0,
+                type: "low-stock"
             },
             {
                 title: "Stock Movements",
                 value: summary?.stockMovements ?? 0,
+                type: "stock-movements"
             },
             {
                 title: "Categories",
                 value: summary?.categoryCount ?? 0,
+                type: "category-wise"
             },
         ],
         [summary],
