@@ -116,6 +116,20 @@ export default function DrawerLayout() {
       />
 
       <Drawer.Screen
+        name="invoice"
+        options={{
+          title: "Invoice",
+          drawerIcon: ({ color, size }) => (
+            <Ionicons
+              name="receipt-outline"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
         name="reports"
         options={{
           title: "Reports",

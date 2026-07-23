@@ -131,7 +131,8 @@ model suppliers {
 }
 
 model users {
-  id                     String                   @id
+  id                     String                   @id @default(cuid())
+  clerk_id               String                   @unique
   full_name              String                   @db.VarChar(255)
   email                  String                   @unique @db.VarChar(255)
   role_id                Int?

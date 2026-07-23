@@ -5,6 +5,7 @@ export interface ProductSearchItem {
     color: string | null;
     size: string | null;
     currentStock: number;
+    sellingPrice: number | null;
 }
 
 export interface ProductSearchResponse {

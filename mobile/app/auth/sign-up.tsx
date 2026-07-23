@@ -20,11 +20,18 @@ export default function Page() {
   const [password, setPassword] = React.useState('')
   const [code, setCode] = React.useState('')
 
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
+  const [username, setUsername] = React.useState("");
+
 const handleSubmit = async () => {
   try {
     console.log("BEFORE:", signUp.status);
 
     const { error } = await signUp.password({
+      firstName,
+      lastName,
+      username,
       emailAddress,
       password,
     });
@@ -33,13 +40,10 @@ const handleSubmit = async () => {
     console.log("ERROR:", error);
 
     if (!error) {
-      console.log("SENDING EMAIL CODE");
       await signUp.verifications.sendEmailCode();
-      console.log("EMAIL CODE SENT");
-      console.log("AFTER SEND:", signUp.status);
     }
   } catch (err) {
-    console.log("CATCH ERROR:", err);
+    console.log(err);
   }
 };
 
@@ -132,6 +136,34 @@ console.log("FETCH STATUS:", fetchStatus);
         Sign up
       </ThemedText>
 
+      <ThemedText style={styles.label}>First Name</ThemedText>
+<TextInput
+  style={styles.input}
+  value={firstName}
+  placeholder="Enter first name"
+  placeholderTextColor="#666666"
+  onChangeText={setFirstName}
+/>
+
+<ThemedText style={styles.label}>Last Name</ThemedText>
+<TextInput
+  style={styles.input}
+  value={lastName}
+  placeholder="Enter last name"
+  placeholderTextColor="#666666"
+  onChangeText={setLastName}
+/>
+
+<ThemedText style={styles.label}>Username</ThemedText>
+<TextInput
+  style={styles.input}
+  autoCapitalize="none"
+  value={username}
+  placeholder="Enter username"
+  placeholderTextColor="#666666"
+  onChangeText={setUsername}
+/>
+
       <ThemedText style={styles.label}>Email address</ThemedText>
       <TextInput
         style={styles.input}
@@ -160,11 +192,25 @@ console.log("FETCH STATUS:", fetchStatus);
       <Pressable
         style={({ pressed }) => [
           styles.button,
-          (!emailAddress || !password || fetchStatus === 'fetching') && styles.buttonDisabled,
+          (
+  !firstName ||
+  !lastName ||
+  !username ||
+  !emailAddress ||
+  !password ||
+  fetchStatus === "fetching"
+) && styles.buttonDisabled,
           pressed && styles.buttonPressed,
         ]}
         onPress={handleSubmit}
-        disabled={!emailAddress || !password || fetchStatus === 'fetching'}
+        disabled={
+  !firstName ||
+  !lastName ||
+  !username ||
+  !emailAddress ||
+  !password ||
+  fetchStatus === "fetching"
+}
       >
         <ThemedText style={styles.buttonText}>Sign up</ThemedText>
       </Pressable>

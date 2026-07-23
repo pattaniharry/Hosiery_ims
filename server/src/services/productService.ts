@@ -39,6 +39,7 @@ export async function searchProducts(
         select: {
             id: true,
             sku: true,
+            selling_price: true,
             colour: {
                 select: {
                     name: true,
@@ -70,6 +71,7 @@ export async function searchProducts(
             color: item.colour?.name ?? null,
             size: item.size?.name ?? null,
             currentStock: item.inventory?.quantity ?? 0,
+            selling_price: item.selling_price
         })),
     };
 }
